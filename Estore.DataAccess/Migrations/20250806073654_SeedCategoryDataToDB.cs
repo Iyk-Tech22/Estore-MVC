@@ -4,7 +4,7 @@
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace EstoreWeb.Migrations
+namespace Estore.DataAccess.Migrations
 {
     /// <inheritdoc />
     public partial class SeedCategoryDataToDB : Migration

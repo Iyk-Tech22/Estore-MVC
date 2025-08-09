@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace EstoreWeb.Migrations
+namespace Estore.DataAccess.Migrations
 {
     /// <inheritdoc />
     public partial class AddCategoryTableToDb : Migration

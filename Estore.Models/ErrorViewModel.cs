@@ -1,4 +1,4 @@
-namespace EstoreWeb.Models
+namespace Estore.Models
 {
     public class ErrorViewModel
     {

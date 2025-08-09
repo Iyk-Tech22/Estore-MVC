@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using EstoreWeb.Models;
+using Estore.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EstoreWeb.Controllers

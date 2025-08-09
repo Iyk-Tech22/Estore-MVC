@@ -1,4 +1,4 @@
-using EstoreWeb.Data;
+using Estore.DataAccess.Db;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
