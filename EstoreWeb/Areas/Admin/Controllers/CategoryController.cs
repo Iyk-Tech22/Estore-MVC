@@ -1,20 +1,21 @@
-﻿using Estore.DataAccess.Db;
+﻿using Estore.DataAccess.Repository.IRepository;
 using Estore.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EstoreWeb.Controllers
+namespace EstoreWeb.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public  CategoryController(ApplicationDbContext db)
+        public  CategoryController(IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
         }
         public IActionResult Index()
         {
-            List<CategoryModel> categories = _db.Categories.ToList();
+            List<CategoryModel> categories = _unitOfWork.Category   .GetAll().ToList();
             return View(categories);
         }
 
@@ -34,8 +35,8 @@ namespace EstoreWeb.Controllers
             if (ModelState.IsValid)
             {
 
-                _db.Categories.Add(category);
-                _db.SaveChanges();
+                _unitOfWork.Category.Add(category);
+                _unitOfWork.Save();
                 TempData["success"] = "Category created successfully";
                 return RedirectToAction("Index");
             }
@@ -49,7 +50,7 @@ namespace EstoreWeb.Controllers
             {
                 return NotFound();
             }
-            CategoryModel? category = _db.Categories.Find(id);
+            CategoryModel? category = _unitOfWork.Category.Get(c => c.Id == id);
             if(category == null)
             {
                 return NotFound();
@@ -62,8 +63,8 @@ namespace EstoreWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.Categories.Update(category);
-                _db.SaveChanges();
+                _unitOfWork.Category.Update(category);
+                _unitOfWork.Save();
                 TempData["success"] = "Category updated successfully";
                 return RedirectToAction("Index");
             }
@@ -73,15 +74,15 @@ namespace EstoreWeb.Controllers
         [HttpPost]
         public IActionResult Delete(int? id)
         {
-            CategoryModel? category = _db.Categories.FirstOrDefault(c => c.Id == id);
+            CategoryModel? category = _unitOfWork.Category.Get(c => c.Id == id);
 
             if (category == null)
             {
                 return NotFound();
             }
 
-            _db.Categories.Remove(category);
-            _db.SaveChanges();
+            _unitOfWork.Category.Delete(category);
+            _unitOfWork.Save();
             TempData["success"] = "Category deleted successfully";
             return RedirectToAction("Index");
 

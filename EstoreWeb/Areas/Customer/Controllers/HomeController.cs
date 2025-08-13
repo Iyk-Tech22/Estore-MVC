@@ -2,8 +2,9 @@ using System.Diagnostics;
 using Estore.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EstoreWeb.Controllers
+namespace EstoreWeb.Areas.Customer.Controllers
 {
+    [Area("Customer")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
