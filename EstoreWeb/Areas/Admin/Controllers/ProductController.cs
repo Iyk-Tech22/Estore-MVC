@@ -1,12 +1,14 @@
 ﻿using Estore.DataAccess.Repository.IRepository;
 using Estore.Models;
 using Estore.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace EstoreWeb.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -18,7 +20,7 @@ namespace EstoreWeb.Areas.Admin.Controllers
         }
         public IActionResult Index()
         {
-            List<ProductModel> products = _unitOfWork.Product.GetAll().ToList();
+            List<ProductModel> products = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
             return View(products);
         }
 
@@ -67,6 +69,10 @@ namespace EstoreWeb.Areas.Admin.Controllers
                     }
                     productVM.Product.ImageUrl = @"\images\product\" + fileName;
                  }
+                else
+                {
+                    productVM.Product.ImageUrl = "";
+                }
 
                 if(productVM.Product.Id == 0)
                 {
@@ -91,18 +97,55 @@ namespace EstoreWeb.Areas.Admin.Controllers
             }
         }
 
-        [HttpPost]
+        // APIs Endpoints
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            try
+            {
+                List<ProductModel> products = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
+                return Json(new { data = products });
+            }
+            catch (Exception)
+            {
+
+                return Json(new { status = "Error", message = "Something went wrong..." });
+            }
+        }
+
+        [HttpDelete]
         public IActionResult Delete(int? id)
         {
-            ProductModel product = _unitOfWork.Product.Get(p => p.Id == id);
-            if(product == null)
+            try
             {
-                return NotFound();
+                ProductModel product = _unitOfWork.Product.Get(p => p.Id == id);
+
+                if (product == null)
+                {
+                    return Json(new { error = "Error", message = "Error while deleting..." });
+                }
+
+                string wwwRootHost = _webHostEnv.WebRootPath;
+                string oldImagePath = wwwRootHost + product.ImageUrl;
+
+                if (string.IsNullOrEmpty(product.ImageUrl) == false)
+                {
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+                _unitOfWork.Product.Delete(product);
+                _unitOfWork.Save();
+
+                return Json(new { status = "Success", message = "Delete Successful" });
             }
-            _unitOfWork.Product.Delete(product);
-            _unitOfWork.Save();
-            TempData["success"] = "Product deleted successfully";
-            return RedirectToAction("Index");
+            catch (Exception)
+            {
+
+                return Json(new { status = "Error", message = "Somethin went wrong..." });
+            }
         }
     }
+    
 }

@@ -1,7 +1,7 @@
 ﻿@model List<ProductModel>
 
 <div class="container">
-    <div class="row pt-4">
+    <div class="row pt-4 mb-5">
         <div class="col-6">
             <h2 class="text-primary">
                 Product List
@@ -15,13 +15,15 @@
             </a>
         </div>
     </div>
-    <table class="table table-bordered table-striped">
+    <table id="myTable" class="table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Title</th>
                 <th>ISBN</th>
                 <th>Author</th>
                 <th>Price</th>
+                <th>Category</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -32,20 +34,16 @@
                     <td>@product.ISBN</td>
                     <td>@product.Author</td>
                     <td>@product.Price</td>
-                    <td>
-                        <div class="w-75 btn-group" role="group">
-                            <a asp-area="Admin" asp-controller="Product" asp-action="Upsert" asp-route-id="@product.Id" class="btn btn-primary mx-2">
-                                <i class="bi bi-pencil-square"></i> Edit
-                            </a>
-                            <form asp-area="Admin" asp-controller="Product" asp-action="Delete" asp-route-id="@product.Id" method="post">
-                                <button type="submit" class="btn btn-danger mx-2">
-                                    <i class="bi bi-trash"></i> Delete
-                                </button>
-                            </form>
-                        </div>
-                    </td>
+                    <td>@product.Category.Name</td>
+                    <td></td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
+
+@section Scripts {
+    @{
+        <script src="~/js/product.js"></script>
+    }
+}

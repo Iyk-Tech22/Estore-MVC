@@ -1,9 +1,11 @@
 ﻿using Estore.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Estore.DataAccess.Db
 {
-    public class ApplicationDbContext: DbContext
+    public class ApplicationDbContext: IdentityDbContext<IdentityUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options): base(options)
         {
@@ -14,8 +16,14 @@ namespace Estore.DataAccess.Db
 
         public DbSet<ProductModel> Products { get; set; }
 
+        public DbSet<ApplicationUser> ApplicationUser { get; set; }
+
+        public DbSet<CompanyModel> Companies { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<CategoryModel>().HasData(
                 new CategoryModel() { Id = 1, Name = "Action", DisplayOrder = 1 },
                 new CategoryModel() { Id = 2, Name = "SciFi", DisplayOrder = 2 },
@@ -107,6 +115,30 @@ namespace Estore.DataAccess.Db
                     Price100 = 20,
                     CategoryId = 3,
                     ImageUrl = ""
+                }
+            );
+
+            modelBuilder.Entity<CompanyModel>().HasData
+            (
+                new CompanyModel()
+                {
+                    Id = 1,
+                    Name = "Jimmy Doe.",
+                    StreetAddress = "123 Main St",
+                    City = "Anytown",
+                    State = "CA",
+                    PostalCode = "12345",
+                    PhoneNumber = "123-456-7890"
+                },
+                new CompanyModel()
+                {
+                    Id = 2,
+                    Name = "Jane Smith Inc.",
+                    StreetAddress = "456 Elm St",
+                    City = "Othertown",
+                    State = "NY",
+                    PostalCode = "67890",
+                    PhoneNumber = "987-654-3210"
                 }
             );
         }

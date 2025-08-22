@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Estore.DataAccess.Repository.IRepository;
 using Estore.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,20 +9,28 @@ namespace EstoreWeb.Areas.Customer.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
         {
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
-            return View();
+            IEnumerable<ProductModel> products = _unitOfWork.Product.GetAll(includeProperties: "Category");
+            return View(products);
         }
 
-        public IActionResult Privacy()
+        public IActionResult Details(int? productId)
         {
-            return View();
+            ProductModel product = _unitOfWork.Product.Get(p => p.Id == productId, includeProperties: "Category");
+            if(product == null)
+            {
+                return NotFound();
+            }
+            return View(product);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
