@@ -2,9 +2,23 @@
 {
     public static class SD
     {
-        public static string RoleCustomer = "Customer";
-        public static string RoleCompany = "Company";
-        public static string RoleAdmin = "Admin";
-        public static string RoleEmployee = "Employee";
+        public const string RoleCustomer = "Customer";
+        public const string RoleCompany = "Company";
+        public const string RoleAdmin = "Admin";
+        public const string RoleEmployee = "Employee";
+
+        public const string StatusPending = "Pending";
+        public const string StatusApproved = "Approved";
+        public const string StatusInProcess = "InProcess";
+        public const string StatusShipped = "Shipped";
+        public const string StatusCancelled = "Cancelled";
+
+        public const string PaymentStatusPending = "Pending";
+        public const string PaymentStatusApproved = "Approved";
+        public const string PaymentStatusDelayedPayment = "ApprovedForDelayedPayment";
+        public const string PaymentStatusRejected = "Rejected";
+        public const string PaymentStatusRefunded = "Refunded";
+        public const string PaymentStatusCancelled = "Cancelled";
+        public const string SessionCart = "SessionCart";
     }
 }

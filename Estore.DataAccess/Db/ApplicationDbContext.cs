@@ -20,6 +20,12 @@ namespace Estore.DataAccess.Db
 
         public DbSet<CompanyModel> Companies { get; set; }
 
+        public DbSet<ShoppingCartModel> shoppingCarts { get; set; }
+
+        public DbSet<OrderHeaderModel> OrderHeaders { get; set; }
+
+        public DbSet<OrderDetailModel> OrderDetails { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -85,7 +85,7 @@ namespace EstoreWeb.Areas.Admin.Controllers
 
                     _unitOfWork.Save();
                 TempData["success"] = "Product created successfully";
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }else
             {
                 productVM.CategoryList = _unitOfWork.Category.GetAll().Select(c => new SelectListItem()

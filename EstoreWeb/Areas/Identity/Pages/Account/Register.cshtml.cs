@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
+using Estore.DataAccess.Repository.IRepository;
 using Estore.Models;
 using Estore.Utility;
 using Microsoft.AspNetCore.Authentication;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 
 namespace EstoreWeb.Areas.Identity.Pages.Account
 {
@@ -23,6 +25,7 @@ namespace EstoreWeb.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly IUnitOfWork _unitOfWork;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
@@ -30,7 +33,9 @@ namespace EstoreWeb.Areas.Identity.Pages.Account
             RoleManager<IdentityRole> roleManager,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IUnitOfWork unitOfWork
+         )
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -39,6 +44,7 @@ namespace EstoreWeb.Areas.Identity.Pages.Account
             _logger = logger;
             _emailSender = emailSender;
             _roleManager = roleManager;
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -105,13 +111,19 @@ namespace EstoreWeb.Areas.Identity.Pages.Account
             public string? State { get; set; }
             public string? PostalCode { get; set; }
             public string? PhoneNumber { get; set; }
+
+            [ValidateNever]
+            public int? Company { get; set; }
+
+            [ValidateNever]
+            public IEnumerable<SelectListItem> Companies { get; set; }
         }
 
 
         public async Task OnGetAsync(string returnUrl = null)
         {
             await GetRoles();
-
+            GetCompanies();
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
@@ -132,6 +144,13 @@ namespace EstoreWeb.Areas.Identity.Pages.Account
                 user.State = Input.State;
                 user.PostalCode = Input.PostalCode;
                 user.PhoneNumber = Input.PhoneNumber;
+                
+                if(Input.Role == SD.RoleCompany)
+                {
+                    user.CompanyId = Input.Company;
+                }
+
+
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
@@ -165,7 +184,15 @@ namespace EstoreWeb.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        if (User.IsInRole(SD.RoleAdmin))
+                        {
+                            TempData["Success"] = "New user created successfully";
+                        }
+                        else
+                        {
+
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                        }
                         return LocalRedirect(returnUrl);
                     }
                 }
@@ -177,6 +204,7 @@ namespace EstoreWeb.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             await GetRoles();
+            GetCompanies();
             return Page();
         }
 
@@ -221,6 +249,17 @@ namespace EstoreWeb.Areas.Identity.Pages.Account
                     Value = v
                 })
             };
+        }
+
+        private void GetCompanies()
+        {
+            var result = _unitOfWork.Company.GetAll();
+            Input.Companies = result.Select(c => new SelectListItem()
+            {
+                Text = c.Name,
+                Value = c.Id.ToString()
+            });
+
         }
     }
 }

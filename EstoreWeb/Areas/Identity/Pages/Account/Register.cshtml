@@ -5,7 +5,9 @@
     <div class="card-header bg-secondary bg-gradient ml-0 py-2">
         <div class="row">
             <div class="col-12 text-center">
-                <h2 class="py-2 text-white">Register</h2>
+                <h2 class="py-2 text-white">
+                    @(User.IsInRole(SD.RoleAdmin) ? "Register - Admin Portal": "Register");
+                </h2>
             </div>
         </div>
     </div>
@@ -16,7 +18,7 @@
                     <h3 class="border-bottom pb-3 mb-4 text-secondary text-center">Create a new account.</h3>
                     <hr />
                     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-                    <div class="form-floating mb-3 col-6">
+                    <div class="form-floating mb-3 col-12">
                         <input asp-for="Input.FullName" class="form-control" autocomplete="username" aria-required="true" placeholder="name" />
                         <label asp-for="Input.FullName" class="ms-2 text-muted">FullName</label>
                         <span asp-validation-for="Input.FullName" class="text-danger"></span>
@@ -61,20 +63,81 @@
                         <label asp-for="Input.PhoneNumber" class="ms-2 text-muted">PhoneNumber</label>
                         <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
                     </div>
-                    <div class="form-floating mb-3 col-6">
-                        <select asp-for="Input.Role" asp-items="@Model.Input.Roles" class="form-control">
-                            <option selected disabled>--Select a role--</option>
-                        </select>
-                    </div>
+                    @if(User.IsInRole(SD.RoleAdmin) || User.IsInRole(SD.RoleEmployee))
+                    {
+                        <div class="form-floating mb-3 col-6">
+                            <select id="role" asp-for="Input.Role" asp-items="@Model.Input.Roles" class="form-control">
+                                <option selected disabled>--Select a role--</option>
+                            </select>
+                        </div>
+                        <div id="company" hidden class="form-floating mb-3 col-6">
+                            <select asp-for="Input.Company" asp-items="@Model.Input.Companies" class="form-control">
+                                <option selected disabled>--Select a company--</option>
+                            </select>
+                        </div>
+                    }
                     <div class="col-12">
                         <button id="registerSubmit" type="submit" class="w-100 btn btn-primary">Register</button>
                     </div>
                 </form>
             </div>
+
+            @if (!User.IsInRole(SD.RoleAdmin))
+            {
+                <div class="col-md-12 p-3 text-center">
+                    <section>
+                        <p class="divider-text d-flex pt-3">or</p>
+
+                        @{
+                            if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                            {
+                                <div>
+                                    <p>
+                                        There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
+                                            article
+                                            about setting up this ASP.NET application to support logging in via external services
+                                        </a>.
+                                    </p>
+                                </div>
+                            }
+                            else
+                            {
+                                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                                    <div>
+                                        <p>
+                                            @foreach (var provider in Model.ExternalLogins!)
+                                            {
+                                                <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                            }
+                                        </p>
+                                    </div>
+                                </form>
+                            }
+                        }
+                    </section>
+                </div>
+            }
         </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        const companyEle = document.getElementById("company");
+        const roleEle = document.getElementById("role");
+        const value = roleEle.value;
+        if(value === "Company"){
+            companyEle.hidden = false;
+        }
+        roleEle.addEventListener("change", function(event){
+            const value = event.target.value;
+            if(value === "Company"){
+                companyEle.hidden = false;
+            }
+            else{
+                companyEle.hidden = true;
+            }
+        })
+    </script>
 }

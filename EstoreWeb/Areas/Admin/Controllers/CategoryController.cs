@@ -41,7 +41,7 @@ namespace EstoreWeb.Areas.Admin.Controllers
                 _unitOfWork.Category.Add(category);
                 _unitOfWork.Save();
                 TempData["success"] = "Category created successfully";
-                return RedirectToAction("Index");
+                RedirectToAction(nameof(Index));
             }
             return View();
         }
@@ -69,7 +69,7 @@ namespace EstoreWeb.Areas.Admin.Controllers
                 _unitOfWork.Category.Update(category);
                 _unitOfWork.Save();
                 TempData["success"] = "Category updated successfully";
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
             return View();
         }
@@ -87,7 +87,7 @@ namespace EstoreWeb.Areas.Admin.Controllers
             _unitOfWork.Category.Delete(category);
             _unitOfWork.Save();
             TempData["success"] = "Category deleted successfully";
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
 
         }
     }
